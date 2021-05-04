@@ -1,0 +1,260 @@
+@font-face {
+    src: url('/fonts/OpenSans-Regular.ttf');
+    font-family: "Open Sans";
+}
+@font-face {
+    src: url('/fonts/Roboto-Regular.ttf');
+    font-family: "Roboto";
+}
+@media screen and (min-width: 768px) and (max-width: 1299px) {}
+
+.title {
+    font-family: "Open Sans", Arial, serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 47px;
+    margin: 0 30px 0 0;
+    color: #06266F;
+}
+
+.subtitle {
+    font-family: "Roboto", Arial, sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 20px;
+    color: #06266F;
+    margin: 0;
+}
+
+.subtitle__big {
+    font-size: 30px;
+}
+
+.button {
+    background-color: #4671D5;
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    border: none;
+}
+
+.button > img {
+    height: 30px;
+}
+
+.text {
+    font-family: "Roboto", Arial, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 15px;
+    color: #FFFFFF;
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, serif;
+    background-color: #FFFFFF;
+}
+
+body > * {
+    min-width: 290px;
+}
+
+.container {
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /*max-width: 1170px;*/
+    margin: 0 auto 40px;
+    padding: 40px 0;
+}
+
+.header>* {
+    margin: 0 15px;
+}
+
+.header__button {
+    width: 250px;
+    height: 50px;
+    font-size: 20px;
+    color: #FFFFFF;
+    background-color: #4671D5;
+}
+
+.header__button_mobile {
+    display: none;
+}
+
+.loading {
+    height: 100px;
+    /*display: none;*/
+    margin: 0 auto 40px;
+    padding: 0 15px;
+}
+
+.current {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin: 0 auto 40px;
+    padding: 0 15px;
+}
+
+.location {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-content: space-between;
+    width: 290px;
+}
+
+.location_temperature {
+    display: flex;
+}
+
+.location_temperature > * {
+    margin: 20px 20px 20px 0;
+    height: 100px;
+}
+
+.degree__big {
+    font-size: 55px;
+}
+
+.details {
+    width: 290px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.details_item {
+    display: flex;
+    justify-content: space-between;
+    background-color: #6C8CD5;
+    height: 34px;
+    align-items: center;
+    width: 290px;
+}
+
+.details_item p {
+    margin: 0 4px;
+}
+
+.favourite_header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.favourite_header > * {
+    margin-bottom: 20px;
+}
+
+.favourite_item {
+    width: 290px;
+    padding: 0 15px;
+}
+
+.favourite-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.favourite-list > * {
+    flex: 0 0 33.33333%;
+}
+
+.favourite_new-city {
+    display: flex;
+    width: 290px;
+}
+
+.favourite_new-city__input {
+    height: 36px;
+    width: 222px;
+    background-color: aliceblue;
+    margin-right: 20px;
+}
+
+.city-header {
+    display: flex;
+    width: 290px;
+    height: 70px;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.degree__small {
+    font-size: 20px;
+}
+
+.city-header > img {
+    height: 40px;
+}
+/*.loading-fav {
+    height: 100px;
+    !*display: none;*!
+    margin: 20px auto;
+}*/
+/*.favourite_item>.details {
+    display: none;
+}*/
+
+.invisible {
+    display: none;
+}
+
+@media screen and (min-width: 0) and (max-width: 640px) {
+    .body * {
+        min-width: 320px;
+    }
+    .header {
+        width: 320px;
+        margin: 0 auto;
+    }
+    .header__button {
+        display: none;
+    }
+    .header__button_mobile {
+        display: block;
+        width: 80px;
+        height: 64px;
+        background-color: #4671D5;
+    }
+    .header__button_mobile img {
+        width: 50px;
+    }
+    .current, .favourite_header, .favourite-list {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .favourite_header h2 {
+        margin: 0 0 15px;
+        width: 290px;
+    }
+    .loading-fav {
+        display: block;
+    }
+    .invisible {
+        display: none;
+    }
+}
+
