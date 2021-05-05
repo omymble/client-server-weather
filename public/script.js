@@ -1,5 +1,4 @@
 const API_KEY = '349adfe04241534f6ed0cfe457001bf0';
-const URL_REQUEST = 'https://api.openweathermap.org/data/2.5/weather?';
 
 const defaultRequest = {
     lat: 51.5085,
@@ -40,7 +39,6 @@ const setLoadingFav = (flag) => {
     }
 }
 
-const makeURL = (obj) => { return URL_REQUEST + new URLSearchParams(obj).toString() }
 const iconUrl = (code) => { return `http://openweathermap.org/img/wn/${code}@2x.png` }
 const convertDeg = (temperature) => { return Math.round(temperature) }
 
@@ -92,8 +90,8 @@ function weatherByCityName(city){
         })
 }
 
-/*function weatherByCoords(lon, lat){
-    return fetch(`http://localhost:3000/weather/coordinates?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}' + key`)
+function weatherByCoords(lon, lat){
+    return fetch(`http://localhost:3000/weather/coordinates?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
         .then((response) => {
             if(response.ok){
                 return response.json();
@@ -105,9 +103,9 @@ function weatherByCityName(city){
                 alert('Connection problem!');
             }
         })
-}*/
+}
 
-function favList(){
+function favList()  {
     return fetch('http://localhost:3000/favourites/list')
         .then((response) => {
             if(response.ok){
@@ -123,115 +121,82 @@ function showFavouriteCities(){
         });
     });
 }
-//get your current-position weather
+
 function currentGeo() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(success, error);
     }
     else {
         alert('Impossible to get your geolocation');
-        currentToDOM(getCityJSON(makeURL(defaultRequest)));
+        setLoadingCurrent(true);
+        let response = weatherByCityName('London');
+        if (response != null) {
+            currentToDOM(response);
+        }
+        setLoadingCurrent(false);
     }
 }
 const success = async (position) => {
     setLoadingCurrent(true);
-    if (simpleRequest.q) {delete simpleRequest.q}
-    simpleRequest.lat = position.coords.latitude;
-    simpleRequest.lon = position.coords.longitude;
-    // здесь по координатам
-    let NEW_URL = `http://localhost:3000/weather/coordinates?lat=${simpleRequest.lat}&lon=${simpleRequest.lon}&units=metric&appid=${API_KEY}' + key`
-    let response = await getCityJSON(NEW_URL);
+    const response = await  weatherByCoords(position.coords.longitude, position.coords.latitude);
     currentToDOM(response);
     setLoadingCurrent(false);
 }
 const error = async (err) => {
-    setLoadingCurrent(true);
     alert(`ERROR(${err.code}): ${err.message}`);
-    //здесь по городу
-    let NEW_URL = `http://localhost:3000/weather/city?q=London`
-    let response = await getCityJSON(NEW_URL);
-    currentToDOM(response);
+    setLoadingCurrent(true);
+    const response = await weatherByCityName('London');
+    if (response != null) {
+        currentToDOM(response);
+    }
     setLoadingCurrent(false);
 }
 
 
-//get json information about a city by url
-const getCityJSON = async (stringUrl) => {
-    let response;
-    try {
-        response = await fetch(stringUrl);
-        if (response.status === 404){
-            throw new Error('Impossible to find this city. Does not exist');
-        }
-        if (response.status === 401){
-            throw new Error('Token problems');
-        }
-        if (response.status === 403){
-            throw new Error('Forbidden');
-        }
-        if (response.status === 500){
-            throw new Error('Internal error');
-        }
-        if (response.status === 503){
-            throw new Error('Service is not available');
-        }
-    } catch (err) {
-        alert(err.message);
-        setLoadingCurrent(false);
-        setLoadingFav(false);
-    }
-    if (response.ok) {
-        return await response.json();
-    }
-}
-
-function addNewCity(city, isNew){
-    city = city.charAt(0).toUpperCase () + city.substr(1).toLowerCase ();
+function addNewCity(city, isNew) {
+    city = city.charAt(0).toUpperCase() + city.substr(1).toLowerCase();
     let favList = document.querySelector('.favourite-list');
-    let NEW_URL = `http://localhost:3000/weather/city?q=${city}`
-    // let lclone = loaderTemp.content.cloneNode(true);
-    // document.querySelector('#cities').prepend(lclone);
     setLoadingFav(true);
-    getCityJSON(NEW_URL).then((data) => {
-        if(data != null){
-            if(isNew){
-                return fetch('http://localhost:3000/favourites/add?q=' + city, {method: 'POST'})
-                    .then((response) => {
-                        if(response.ok){
-                            //заполняем новый город
-                            let template = generateEmptyTemplate();
-                            let favouriteCity = document.importNode(template, true);
-                            favouriteCity.querySelector('.city_name').setAttribute('custom_id', response.id);
-                            attachRemoveEvents(favouriteCity.querySelector('.delete'));
-                            favouriteCity.querySelector('.city_name').innerHTML = response.name;
-                            favouriteCity.querySelector('.degree').innerHTML = `${convertDeg(response.main.temp)} &degC`;
-                            favouriteCity.querySelector('.icon').setAttribute('src', iconUrl(response.weather[0].icon));
-                            addCityParams(favouriteCity, response)
-                            favList.appendChild(favouriteCity);
-                        }
-                        if(response.status === 400){
-                            alert('Already added');
-                        }
-                    })
-                    .catch((err) => {})
+    weatherByCityName(city)
+        .then((data) => {
+            if (data != null) {
+                if (isNew) {
+                    return fetch(`http://localhost:3000/favourites/add?q=${city}`, {method: 'POST'})
+                        .then((response) => {
+                            if (response.ok) { //заполняем новый город
+                                let template = generateEmptyTemplate();
+                                let favouriteCity = document.importNode(template, true);
+                                favouriteCity.querySelector('.city_name').setAttribute('custom_id', data.id);
+                                attachRemoveEvents(favouriteCity.querySelector('.delete'), city);
+                                favouriteCity.querySelector('.city_name').innerHTML = data.name;
+                                favouriteCity.querySelector('.degree').innerHTML = `${convertDeg(data.main.temp)} &degC`;
+                                favouriteCity.querySelector('.icon').setAttribute('src', iconUrl(data.weather[0].icon));
+                                addCityParams(favouriteCity, data)
+                                favList.appendChild(favouriteCity);
+                            }
+                            if (response.status === 400) {
+                                alert('Already added');
+                            }
+                        })
+                        .catch((err) => {
+                        })
+                } else {
+                    let template = generateEmptyTemplate();
+                    let favouriteCity = document.importNode(template, true);
+                    favouriteCity.querySelector('.city_name').setAttribute('custom_id', data.id);
+                    attachRemoveEvents(favouriteCity.querySelector('.delete'), city);
+                    favouriteCity.querySelector('.city_name').innerHTML = data.name;
+                    favouriteCity.querySelector('.degree').innerHTML = `${convertDeg(data.main.temp)} &degC`;
+                    favouriteCity.querySelector('.icon').setAttribute('src', iconUrl(data.weather[0].icon));
+                    addCityParams(favouriteCity, data)
+                    favList.appendChild(favouriteCity);
+                }
             }
-            else{
-                let template = generateEmptyTemplate();
-                let favouriteCity = document.importNode(template, true);
-                favouriteCity.querySelector('.city_name').setAttribute('custom_id', response.id);
-                attachRemoveEvents(favouriteCity.querySelector('.delete'));
-                favouriteCity.querySelector('.city_name').innerHTML = response.name;
-                favouriteCity.querySelector('.degree').innerHTML = `${convertDeg(response.main.temp)} &degC`;
-                favouriteCity.querySelector('.icon').setAttribute('src', iconUrl(response.weather[0].icon));
-                addCityParams(favouriteCity, response)
-                favList.appendChild(favouriteCity);
-            }
-        }
-
-    })
+        })
     setLoadingFav(false);
-    // document.querySelector('#cities').querySelector('.loader').remove();
 }
+
+
 /*const addNewCity = async (cityName, isNew) => {
     let favList = document.querySelector('.favourite-list');
     simpleRequest.q = cityName;
@@ -305,14 +270,19 @@ const attachAddEvents = () => {
     })
 }
 
-const attachRemoveEvents = (removeBtn) => {
+const attachRemoveEvents = (removeBtn, city) => {
     removeBtn.addEventListener('click', (event) => {
-        event.preventDefault()
-        const mainList = removeBtn.parentNode.parentNode.parentNode
-        if(removeBtn.parentNode.parentNode){
-            mainList.removeChild(removeBtn.parentNode.parentNode)
-            localStorage.removeItem(removeBtn.parentNode.querySelector('.city_name').getAttribute('custom_id'))
-        }
+        event.preventDefault();
+        return fetch(`http://localhost:3000/favourites/delete?q=${city}`, {method: 'DELETE'})
+            .then((response) => {
+                if (response.ok) {
+                    const mainList = removeBtn.parentNode.parentNode.parentNode;
+                    if (removeBtn.parentNode.parentNode) {
+                        mainList.removeChild(removeBtn.parentNode.parentNode);
+                    }
+                }
+            })
+            .catch((err) => {});
     })
 }
 
